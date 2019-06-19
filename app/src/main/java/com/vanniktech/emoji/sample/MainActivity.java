@@ -2,18 +2,19 @@ package com.vanniktech.emoji.sample;
 
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.text.emoji.EmojiCompat;
-import android.support.text.emoji.bundled.BundledEmojiCompatConfig;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import com.eftimoff.viewpagertransformers.DefaultTransformer;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v4.content.ContextCompat;
+import android.support.text.emoji.bundled.BundledEmojiCompatConfig;
+import android.support.text.emoji.EmojiCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+//import com.eftimoff.viewpagertransformers.DefaultTransformer;
+//import com.eftimoff.viewpagertransformers.RotateUpTransformer;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
@@ -123,8 +124,11 @@ import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
         .setOnSoftKeyboardOpenListener(ignore -> Log.d(TAG, "Opened soft keyboard"))
         .setOnEmojiPopupDismissListener(() -> emojiButton.setImageResource(R.drawable.emoji_ios_category_smileysandpeople))
         .setOnSoftKeyboardCloseListener(() -> Log.d(TAG, "Closed soft keyboard"))
-        .setKeyboardAnimationStyle(R.style.emoji_slide_animation_style)
-        .setPageTransformer(new DefaultTransformer())
+        .setKeyboardAnimationStyle(R.style.emoji_fade_animation_style)
+//        .setKeyboardAnimationStyle(R.style.emoji_slide_animation_style)
+//        .setPageTransformer(new RotateUpTransformer())
+        .setPageTransformer(new PageTransformer())
+//        .setPageTransformer(new DefaultTransformer())
         .build(editText);
   }
 }

@@ -29,6 +29,10 @@ final class TestEmojiProvider implements EmojiProvider {
             @Override public int getIcon() {
               return 0;
             }
+
+            @Override public int getCategoryName() {
+                return 0;
+            }
           }
         };
       }
@@ -50,6 +54,10 @@ final class TestEmojiProvider implements EmojiProvider {
 
         @Override public int getIcon() {
           return R.drawable.emoji_recent;
+        }
+
+          @Override public int getCategoryName() {
+            return R.string.emoji_category_recent;
         }
       }
     };

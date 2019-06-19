@@ -2,6 +2,7 @@ package com.vanniktech.emoji.emoji;
 
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 
 /**
  * Interface for defining a category.
@@ -22,4 +23,11 @@ public interface EmojiCategory {
    * @since 0.4.0
    */
   @DrawableRes int getIcon();
+
+  /**
+   * Returns category name.
+   *
+   * @since 0.7.0
+   */
+  @StringRes int getCategoryName();
 }
