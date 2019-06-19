@@ -1,6 +1,6 @@
 package com.vanniktech.emoji;
 
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 import java.util.List;
 
 public final class EmojiInformation {

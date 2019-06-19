@@ -1,8 +1,8 @@
 package com.vanniktech.emoji;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.TextUtils;
 import com.vanniktech.emoji.emoji.Emoji;

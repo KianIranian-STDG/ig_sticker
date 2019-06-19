@@ -1,7 +1,7 @@
 package com.vanniktech.emoji.<%= package %>.category;
 
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import com.vanniktech.emoji.emoji.EmojiCategory;
 import com.vanniktech.emoji.<%= package %>.R;
 import com.vanniktech.emoji.<%= package %>.<%= name %>;

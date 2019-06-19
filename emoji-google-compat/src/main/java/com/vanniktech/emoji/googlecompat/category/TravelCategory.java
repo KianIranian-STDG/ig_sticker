@@ -1,7 +1,7 @@
 package com.vanniktech.emoji.googlecompat.category;
 
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import com.vanniktech.emoji.googlecompat.GoogleCompatEmoji;
 import com.vanniktech.emoji.emoji.Emoji;
 import com.vanniktech.emoji.emoji.EmojiCategory;

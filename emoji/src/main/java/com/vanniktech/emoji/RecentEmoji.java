@@ -1,6 +1,6 @@
 package com.vanniktech.emoji;
 
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 import com.vanniktech.emoji.emoji.Emoji;
 import java.util.Collection;
 
