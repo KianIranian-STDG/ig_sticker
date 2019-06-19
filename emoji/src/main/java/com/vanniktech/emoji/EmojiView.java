@@ -1,6 +1,7 @@
 package com.vanniktech.emoji;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.support.annotation.ColorInt;
@@ -14,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.vanniktech.emoji.emoji.EmojiCategory;
@@ -21,6 +23,7 @@ import com.vanniktech.emoji.listeners.OnEmojiBackspaceClickListener;
 import com.vanniktech.emoji.listeners.OnEmojiClickListener;
 import com.vanniktech.emoji.listeners.OnEmojiLongClickListener;
 import com.vanniktech.emoji.listeners.RepeatListener;
+import com.vanniktech.emoji.sticker.OnPageChangeMainViewPager;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -33,21 +36,23 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
   private final ImageButton[] emojiTabs;
   private final EmojiPagerAdapter emojiPagerAdapter;
+  private OnPageChangeMainViewPager onChangeViewPager;
 
   @Nullable OnEmojiBackspaceClickListener onEmojiBackspaceClickListener;
 
   private int emojiTabLastSelectedIndex = -1;
 
-  @SuppressWarnings("PMD.CyclomaticComplexity") public EmojiView(final Context context,
+  @SuppressWarnings("PMD.CyclomaticComplexity") public EmojiView(final Activity context,
       final OnEmojiClickListener onEmojiClickListener,
       final OnEmojiLongClickListener onEmojiLongClickListener, @NonNull final RecentEmoji recentEmoji,
       @NonNull final VariantEmoji variantManager, @ColorInt final int backgroundColor,
-      @ColorInt final int iconColor, @ColorInt final int dividerColor,
+      @ColorInt final int iconColor, @ColorInt final int dividerColor, final OnEmojiBackspaceClickListener onEmojiBackspaceClickListener, final OnPageChangeMainViewPager onChangeViewPager,
       @Nullable final ViewPager.PageTransformer pageTransformer) {
     super(context);
 
     View.inflate(context, R.layout.emoji_view, this);
-
+    this.onChangeViewPager = onChangeViewPager;
+    this.onEmojiBackspaceClickListener = onEmojiBackspaceClickListener;
     setOrientation(VERTICAL);
     setBackgroundColor(backgroundColor != 0 ? backgroundColor : Utils.resolveColor(context, R.attr.emojiBackground, R.color.emoji_background));
     themeIconColor = iconColor != 0 ? iconColor : Utils.resolveColor(context, R.attr.emojiIcons, R.color.emoji_icons);
@@ -77,6 +82,15 @@ import static java.util.concurrent.TimeUnit.SECONDS;
     emojiTabs[emojiTabs.length - 1] = inflateButton(context, R.drawable.emoji_backspace, emojisTab);
 
     handleOnClicks(emojisPager);
+
+    ImageView stickerPage = findViewById(R.id.imgBack);
+    stickerPage.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (onChangeViewPager != null) onChangeViewPager.changePage();
+      }
+    });
+    stickerPage.setColorFilter(themeIconColor, PorterDuff.Mode.SRC_IN);
 
     emojiPagerAdapter = new EmojiPagerAdapter(onEmojiClickListener, onEmojiLongClickListener, recentEmoji, variantManager);
     emojisPager.setAdapter(emojiPagerAdapter);
