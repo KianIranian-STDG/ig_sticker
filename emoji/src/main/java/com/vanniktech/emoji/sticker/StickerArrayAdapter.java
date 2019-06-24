@@ -49,7 +49,18 @@ final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
                     .into(image);
 
         } else {
-            onUpdateStickerListener.onUpdateSticker(mSticker.get(position).getToken(), mSticker.get(position).getName() ,mSticker.get(position).getAvatarSize(), position);
+            final EmojiImageView finalImage = image;
+            onUpdateStickerListener.downloadStickerItem(mSticker.get(position).getToken(), mSticker.get(position).getName() ,mSticker.get(position).getAvatarSize(), new OnStickerItemDownloaded() {
+                @Override
+                public void onStickerItemDownload(String token) {
+                    if (token.equals(mSticker.get(position).getToken())) {
+                        Glide.with(context)
+                                .load(new File(s)) // Uri of the picture
+                                .apply(new RequestOptions().override(160, 160))
+                                .into(finalImage);
+                    }
+                }
+            });
         }
 
 

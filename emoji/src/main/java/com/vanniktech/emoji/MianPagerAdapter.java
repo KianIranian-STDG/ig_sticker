@@ -22,7 +22,8 @@ import java.util.ArrayList;
 
 
 public final class MianPagerAdapter extends PagerAdapter {
-    private static final int RECENT_POSITION = 0;
+    private static final int EMOJI_POSITION = 0;
+    private static final int STICKER_POSITION = 1;
 
     private RecentEmojiGridView recentEmojiGridView;
     private Activity context;
@@ -68,9 +69,9 @@ public final class MianPagerAdapter extends PagerAdapter {
     public Object instantiateItem(final ViewGroup pager, final int position) {
         final View newView;
 
-        if (position == RECENT_POSITION) {
+        if (position == EMOJI_POSITION) {
             newView = new EmojiView(context, clickListener, longClickListener, recentEmoji, variantEmoji, backgroundColor, iconColor, dividerColor, onEmojiBackspaceClickListener,onChangeViewPager,pageTransformer);
-        } else {
+        } else { // STICKER_POSITION
             stickerEmojiView = new StickerEmojiView(context, backgroundColor, iconColor, dividerColor, onChangeViewPager, onStickerListener,onUpdateStickerListener , onOpenPageStickerListener);
             newView = stickerEmojiView;
         }

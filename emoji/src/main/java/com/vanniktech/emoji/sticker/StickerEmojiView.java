@@ -208,7 +208,7 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
 
         // binds the data to the TextView in each row
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, int position) {
 
             if (position >= mData.size()) {
                 holder.imgSticker.setImageResource(R.drawable.emoji_add);
@@ -221,7 +221,7 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
                 return;
             }
 
-            StructGroupSticker item = mData.get(position);
+            final StructGroupSticker item = mData.get(position);
             if (position == 0) {
                 holder.imgSticker.setImageResource(R.drawable.emoji_recent);
                 if (iconColor != 0) {
@@ -243,7 +243,17 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
                             .into(holder.imgSticker);
                 } else {
                     if (mOnUpdateStickerListener != null)
-                        mOnUpdateStickerListener.onUpdateTabSticker(item.getAvatarToken(), item.getName(), item.getAvatarSize(), position);
+                        mOnUpdateStickerListener.downloadStickerAvatar(item.getAvatarToken(), item.getName(), item.getAvatarSize(), new OnStickerAvatarDownloaded() {
+                            @Override
+                            public void onStickerAvatarDownload(String token) {
+                                if (token.equals(item.getAvatarToken())) {
+                                    Glide.with(context)
+                                            .load(new File(item.getUri())) // Uri of the picture
+                                            .apply(new RequestOptions().override(48, 48))
+                                            .into(holder.imgSticker);
+                                }
+                            }
+                        });
                 }
 
             }
