@@ -429,7 +429,4 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
     mainEmojiView.onUpdateRecentSticker(structAllStickers);
   }
 
-  public void onUpdateTabSticker(int updatePosition) {
-    mainEmojiView.onUpdateTabSticker(updatePosition);
-  }
 }

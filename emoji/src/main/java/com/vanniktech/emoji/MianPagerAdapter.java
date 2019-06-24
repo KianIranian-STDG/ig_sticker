@@ -112,7 +112,4 @@ public final class MianPagerAdapter extends PagerAdapter {
         stickerEmojiView.onUpdateRecentSticker(structAllStickers);
     }
 
-    public void onUpdateTabSticker(int updatePosition) {
-        stickerEmojiView.onUpdateTabSticker(updatePosition);
-    }
 }

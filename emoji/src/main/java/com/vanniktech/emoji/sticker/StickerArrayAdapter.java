@@ -34,7 +34,7 @@ final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
     @Override
     public View getView(final int position, final View convertView, @NonNull final ViewGroup parent) {
         EmojiImageView image = (EmojiImageView) convertView;
-
+        image.setImageBitmap(null);
         final Context context = getContext();
 
         if (image == null) {

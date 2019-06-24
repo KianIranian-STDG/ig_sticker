@@ -209,7 +209,7 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
         // binds the data to the TextView in each row
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-
+            holder.imgSticker.setImageBitmap(null);
             if (position >= mData.size()) {
                 holder.imgSticker.setImageResource(R.drawable.emoji_add);
                 holder.itemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
@@ -337,10 +337,5 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
         }
         resetRecentlySticker();
     }
-
-    public void onUpdateTabSticker(int updatePosition) {
-        myRecyclerViewAdapter.notifyItemChanged(updatePosition);
-    }
-
 
 }
