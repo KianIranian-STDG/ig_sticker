@@ -33,7 +33,7 @@ import com.vanniktech.emoji.listeners.OnSoftKeyboardCloseListener;
 import com.vanniktech.emoji.listeners.OnSoftKeyboardOpenListener;
 import com.vanniktech.emoji.sticker.OnOpenPageStickerListener;
 import com.vanniktech.emoji.sticker.OnStickerListener;
-import com.vanniktech.emoji.sticker.OnUpdateStickerListener;
+import com.vanniktech.emoji.sticker.OnDownloadStickerListener;
 import com.vanniktech.emoji.sticker.struct.StructGroupSticker;
 
 import java.util.ArrayList;
@@ -69,7 +69,8 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
   @Nullable OnEmojiClickListener onEmojiClickListener;
   @Nullable OnEmojiPopupDismissListener onEmojiPopupDismissListener;
   @Nullable OnStickerListener onStickerListener;
-  @Nullable OnUpdateStickerListener onUpdateStickerListener;
+  @Nullable
+  OnDownloadStickerListener onDownloadStickerListener;
   @Nullable OnOpenPageStickerListener onOpenPageStickerListener;
 
   int originalImeOptions = -1;
@@ -84,10 +85,10 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
   };
 
   EmojiPopup(@NonNull final View rootView, @NonNull final EditText editText,
-      @Nullable final RecentEmoji recent, @Nullable final VariantEmoji variant,
-      @ColorInt final int backgroundColor, @ColorInt final int iconColor, @ColorInt final int dividerColor,
-      @StyleRes final int animationStyle, @Nullable final ViewPager.PageTransformer pageTransformer,
-      @Nullable OnStickerListener onStickerListener, OnUpdateStickerListener onUpdateStickerListener, OnOpenPageStickerListener onOpenPageStickerListener) {
+             @Nullable final RecentEmoji recent, @Nullable final VariantEmoji variant,
+             @ColorInt final int backgroundColor, @ColorInt final int iconColor, @ColorInt final int dividerColor,
+             @StyleRes final int animationStyle, @Nullable final ViewPager.PageTransformer pageTransformer,
+             @Nullable OnStickerListener onStickerListener, OnDownloadStickerListener onDownloadStickerListener, OnOpenPageStickerListener onOpenPageStickerListener) {
     this.context = Utils.asActivity(rootView.getContext());
     this.rootView = rootView.getRootView();
     this.editText = editText;
@@ -131,7 +132,7 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
         }
       }
     };
-    mainEmojiView = new MainEmojiView(context, clickListener, longClickListener, recentEmoji, variantEmoji, backgroundColor, iconColor, onEmojiBackspaceClickListener, dividerColor, onStickerListener, onUpdateStickerListener, onOpenPageStickerListener ,pageTransformer);
+    mainEmojiView = new MainEmojiView(context, clickListener, longClickListener, recentEmoji, variantEmoji, backgroundColor, iconColor, onEmojiBackspaceClickListener, dividerColor, onStickerListener, onDownloadStickerListener, onOpenPageStickerListener ,pageTransformer);
 
     popupWindow.setContentView(mainEmojiView);
     popupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NOT_NEEDED);
@@ -287,7 +288,7 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
     @Nullable private RecentEmoji recentEmoji;
     @Nullable private VariantEmoji variantEmoji;
     @Nullable private OnStickerListener onStickerListener;
-    @Nullable private OnUpdateStickerListener onUpdateStickerListener;
+    @Nullable private OnDownloadStickerListener onDownloadStickerListener;
     @Nullable private OnOpenPageStickerListener onOpenPageStickerListener;
 
     private Builder(final View rootView) {
@@ -387,8 +388,8 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
     }
 
     @CheckResult
-    public Builder setOnUpdateSticker(@Nullable final OnUpdateStickerListener listener) {
-      onUpdateStickerListener = listener;
+    public Builder setOnDownloadStickerListener(@Nullable final OnDownloadStickerListener listener) {
+      onDownloadStickerListener = listener;
       return this;
     }
 
@@ -403,7 +404,7 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
       checkNotNull(editText, "EditText can't be null");
 
       final EmojiPopup emojiPopup = new EmojiPopup(rootView, editText, recentEmoji, variantEmoji, backgroundColor,
-          iconColor, dividerColor, keyboardAnimationStyle, pageTransformer, onStickerListener, onUpdateStickerListener, onOpenPageStickerListener);
+          iconColor, dividerColor, keyboardAnimationStyle, pageTransformer, onStickerListener, onDownloadStickerListener, onOpenPageStickerListener);
       emojiPopup.onSoftKeyboardCloseListener = onSoftKeyboardCloseListener;
       emojiPopup.onEmojiClickListener = onEmojiClickListener;
       emojiPopup.onSoftKeyboardOpenListener = onSoftKeyboardOpenListener;

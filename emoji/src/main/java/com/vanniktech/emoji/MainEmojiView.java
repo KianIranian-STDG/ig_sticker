@@ -15,7 +15,7 @@ import com.vanniktech.emoji.listeners.OnEmojiLongClickListener;
 import com.vanniktech.emoji.sticker.OnOpenPageStickerListener;
 import com.vanniktech.emoji.sticker.OnPageChangeMainViewPager;
 import com.vanniktech.emoji.sticker.OnStickerListener;
-import com.vanniktech.emoji.sticker.OnUpdateStickerListener;
+import com.vanniktech.emoji.sticker.OnDownloadStickerListener;
 import com.vanniktech.emoji.sticker.struct.StructGroupSticker;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ final class MainEmojiView extends LinearLayout implements ViewPager.OnPageChange
 
     MainEmojiView(final Activity context, final OnEmojiClickListener onEmojiClickListener,
                   final OnEmojiLongClickListener onEmojiLongClickListener, @NonNull final RecentEmoji recentEmoji,
-                  @NonNull final VariantEmoji variantManager, int backgroundColor, int iconColor, OnEmojiBackspaceClickListener onEmojiBackspaceClickListener, int dividerColor, OnStickerListener onStickerListener, OnUpdateStickerListener onUpdateStickerListener, OnOpenPageStickerListener onOpenPageStickerListener, ViewPager.PageTransformer pageTransformer) {
+                  @NonNull final VariantEmoji variantManager, int backgroundColor, int iconColor, OnEmojiBackspaceClickListener onEmojiBackspaceClickListener, int dividerColor, OnStickerListener onStickerListener, OnDownloadStickerListener onDownloadStickerListener, OnOpenPageStickerListener onOpenPageStickerListener, ViewPager.PageTransformer pageTransformer) {
         super(context);
 
         View.inflate(context, R.layout.emoji_main_view_pager, this);
@@ -63,7 +63,7 @@ final class MainEmojiView extends LinearLayout implements ViewPager.OnPageChange
         };
 
         emojisPager.setOffscreenPageLimit(0);
-        emojiPagerAdapter = new MianPagerAdapter(context, onEmojiClickListener, onEmojiLongClickListener, recentEmoji, variantManager, backgroundColor, iconColor, dividerColor, onEmojiBackspaceClickListener, onChangeViewPager, onStickerListener , onUpdateStickerListener ,onOpenPageStickerListener ,pageTransformer);
+        emojiPagerAdapter = new MianPagerAdapter(context, onEmojiClickListener, onEmojiLongClickListener, recentEmoji, variantManager, backgroundColor, iconColor, dividerColor, onEmojiBackspaceClickListener, onChangeViewPager, onStickerListener , onDownloadStickerListener,onOpenPageStickerListener ,pageTransformer);
 
         emojisPager.setAdapter(emojiPagerAdapter);
         emojisPager.setCurrentItem(0);

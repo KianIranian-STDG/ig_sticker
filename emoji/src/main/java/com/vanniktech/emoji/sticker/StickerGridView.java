@@ -28,8 +28,8 @@ final class StickerGridView extends GridView {
         setVerticalScrollBarEnabled(false);
     }
 
-    public StickerGridView init(@NonNull StructGroupSticker mSticker, OnStickerListener onStickerListener, OnUpdateStickerListener onUpdateStickerListener) {
-        stickerArrayAdapter = new StickerArrayAdapter(getContext(), mSticker.getStickers(), onStickerListener, onUpdateStickerListener);
+    public StickerGridView init(@NonNull StructGroupSticker mSticker, OnStickerListener onStickerListener, OnDownloadStickerListener onDownloadStickerListener) {
+        stickerArrayAdapter = new StickerArrayAdapter(getContext(), mSticker.getStickers(), onStickerListener, onDownloadStickerListener);
 
         setAdapter(stickerArrayAdapter);
         return this;

@@ -21,13 +21,13 @@ import java.util.List;
 final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
     private List<StructItemSticker> mSticker;
     private OnStickerListener onStickerListener;
-    private OnUpdateStickerListener onUpdateStickerListener;
+    private OnDownloadStickerListener onDownloadStickerListener;
 
-    StickerArrayAdapter(@NonNull final Context context, @NonNull List<StructItemSticker> mSticker, OnStickerListener onStickerListener, OnUpdateStickerListener onUpdateStickerListener) {
+    StickerArrayAdapter(@NonNull final Context context, @NonNull List<StructItemSticker> mSticker, OnStickerListener onStickerListener, OnDownloadStickerListener onDownloadStickerListener) {
         super(context, 0, mSticker);
         this.mSticker = mSticker;
         this.onStickerListener = onStickerListener;
-        this.onUpdateStickerListener = onUpdateStickerListener;
+        this.onDownloadStickerListener = onDownloadStickerListener;
     }
 
     @NonNull
@@ -50,7 +50,7 @@ final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
 
         } else {
             final EmojiImageView finalImage = image;
-            onUpdateStickerListener.downloadStickerItem(mSticker.get(position).getToken(), mSticker.get(position).getName() ,mSticker.get(position).getAvatarSize(), new OnStickerItemDownloaded() {
+            onDownloadStickerListener.downloadStickerItem(mSticker.get(position).getToken(), mSticker.get(position).getName() ,mSticker.get(position).getAvatarSize(), new OnStickerItemDownloaded() {
                 @Override
                 public void onStickerItemDownload(String token) {
                     if (token.equals(mSticker.get(position).getToken())) {

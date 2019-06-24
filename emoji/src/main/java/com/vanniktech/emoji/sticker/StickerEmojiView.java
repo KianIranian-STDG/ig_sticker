@@ -40,7 +40,7 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
     private OnOpenPageStickerListener myOnOpenPageStickerListener;
     private ArrayList<StructGroupSticker> categoryStickerList;
     private ViewPager emojisPager;
-    public static OnUpdateStickerListener mOnUpdateStickerListener;
+    public static OnDownloadStickerListener mOnDownloadStickerListener;
     private ArrayList<StructItemSticker> recentStickerList = new ArrayList<>();
     private int dividerColor;
     private int iconColor;
@@ -51,7 +51,7 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
         return stickerDatabase;
     }
 
-    public StickerEmojiView(final Activity context, int backgroundColor, int iconColor, int dividerColor, final OnPageChangeMainViewPager onChangeViewPager, OnStickerListener onStickerListener, OnUpdateStickerListener onUpdateStickerListener, final OnOpenPageStickerListener onOpenPageStickerListener) {
+    public StickerEmojiView(final Activity context, int backgroundColor, int iconColor, int dividerColor, final OnPageChangeMainViewPager onChangeViewPager, OnStickerListener onStickerListener, OnDownloadStickerListener onDownloadStickerListener, final OnOpenPageStickerListener onOpenPageStickerListener) {
         super(context);
         View.inflate(context, R.layout.emoji_sticker_view, this);
         this.onChangeViewPager = onChangeViewPager;
@@ -59,7 +59,7 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
 
         this.context = context;
         this.myOnOpenPageStickerListener = onOpenPageStickerListener;
-        this.mOnUpdateStickerListener = onUpdateStickerListener;
+        this.mOnDownloadStickerListener = onDownloadStickerListener;
         this.dividerColor = dividerColor;
         this.iconColor = iconColor;
         if (backgroundColor != 0) {
@@ -116,7 +116,7 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
          */
         recentStickerList = getStickerDatabase(context).getRecentlySticker();
 
-        stickerPagerAdapter = new StickerPagerAdapter(context, backgroundColor, iconColor, dividerColor, categoryStickerList, onChangeViewPager, onStickerListener, recentStickerList, onUpdateStickerListener);
+        stickerPagerAdapter = new StickerPagerAdapter(context, backgroundColor, iconColor, dividerColor, categoryStickerList, onChangeViewPager, onStickerListener, recentStickerList, onDownloadStickerListener);
 
         final int startIndex = recentStickerList.size() > 0 ? 0 : 1;
         myRecyclerViewAdapter = new MyRecyclerViewAdapter(context, categoryStickerList, emojisPager, startIndex);
@@ -242,8 +242,8 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
                             .apply(new RequestOptions().override(48, 48))
                             .into(holder.imgSticker);
                 } else {
-                    if (mOnUpdateStickerListener != null)
-                        mOnUpdateStickerListener.downloadStickerAvatar(item.getAvatarToken(), item.getName(), item.getAvatarSize(), new OnStickerAvatarDownloaded() {
+                    if (mOnDownloadStickerListener != null)
+                        mOnDownloadStickerListener.downloadStickerAvatar(item.getAvatarToken(), item.getName(), item.getAvatarSize(), new OnStickerAvatarDownloaded() {
                             @Override
                             public void onStickerAvatarDownload(String token) {
                                 if (token.equals(item.getAvatarToken())) {

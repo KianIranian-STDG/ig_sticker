@@ -23,9 +23,9 @@ public final class StickerPagerAdapter extends PagerAdapter {
     private OnStickerListener onStickerListener;
     private RecentStickerGridView recentStickerGridView;
     private StickerGridView stickerGridView;
-    private OnUpdateStickerListener onUpdateStickerListener;
+    private OnDownloadStickerListener onDownloadStickerListener;
 
-    StickerPagerAdapter(Activity context, int backgroundColor, int iconColor, int dividerColor, ArrayList<StructGroupSticker> stickerList, OnPageChangeMainViewPager onChangeViewPager, OnStickerListener onStickerListener, ArrayList<StructItemSticker> recentSticker, OnUpdateStickerListener onUpdateStickerListener) {
+    StickerPagerAdapter(Activity context, int backgroundColor, int iconColor, int dividerColor, ArrayList<StructGroupSticker> stickerList, OnPageChangeMainViewPager onChangeViewPager, OnStickerListener onStickerListener, ArrayList<StructItemSticker> recentSticker, OnDownloadStickerListener onDownloadStickerListener) {
         this.context = context;
         this.backgroundColor = backgroundColor;
         this.iconColor = iconColor;
@@ -35,7 +35,7 @@ public final class StickerPagerAdapter extends PagerAdapter {
         this.onStickerListener = onStickerListener;
         this.recentStickerList = recentSticker;
         this.recentStickerGridView = null;
-        this.onUpdateStickerListener = onUpdateStickerListener;
+        this.onDownloadStickerListener = onDownloadStickerListener;
     }
 
     @Override
@@ -51,7 +51,7 @@ public final class StickerPagerAdapter extends PagerAdapter {
             newView = new RecentStickerGridView(pager.getContext()).init(onStickerListener, recentStickerList);
             recentStickerGridView = (RecentStickerGridView) newView;
         } else {
-            newView = new StickerGridView(pager.getContext()).init(stickerList.get(position), onStickerListener , onUpdateStickerListener);
+            newView = new StickerGridView(pager.getContext()).init(stickerList.get(position), onStickerListener , onDownloadStickerListener);
             stickerGridView = (StickerGridView) newView;
         }
 

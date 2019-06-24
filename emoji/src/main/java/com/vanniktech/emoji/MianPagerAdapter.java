@@ -13,7 +13,7 @@ import com.vanniktech.emoji.listeners.OnEmojiLongClickListener;
 import com.vanniktech.emoji.sticker.OnOpenPageStickerListener;
 import com.vanniktech.emoji.sticker.OnPageChangeMainViewPager;
 import com.vanniktech.emoji.sticker.OnStickerListener;
-import com.vanniktech.emoji.sticker.OnUpdateStickerListener;
+import com.vanniktech.emoji.sticker.OnDownloadStickerListener;
 import com.vanniktech.emoji.sticker.StickerEmojiView;
 import com.vanniktech.emoji.sticker.struct.StructGroupSticker;
 
@@ -36,13 +36,13 @@ public final class MianPagerAdapter extends PagerAdapter {
     private int dividerColor;
     private OnPageChangeMainViewPager onChangeViewPager;
     private OnStickerListener onStickerListener;
-    private OnUpdateStickerListener onUpdateStickerListener;
+    private OnDownloadStickerListener onDownloadStickerListener;
     private OnOpenPageStickerListener onOpenPageStickerListener;
     private OnEmojiBackspaceClickListener onEmojiBackspaceClickListener;
     private StickerEmojiView stickerEmojiView;
     private ViewPager.PageTransformer pageTransformer;
 
-    public MianPagerAdapter(Activity context, OnEmojiClickListener onEmojiClickListener, OnEmojiLongClickListener onEmojiLongClickListener, RecentEmoji recentEmoji, VariantEmoji variantManager, int backgroundColor, int iconColor, int dividerColor, OnEmojiBackspaceClickListener onEmojiBackspaceClickListener, OnPageChangeMainViewPager onChangeViewPager, OnStickerListener onStickerListener, OnUpdateStickerListener onUpdateStickerListener, OnOpenPageStickerListener onOpenPageStickerListener, ViewPager.PageTransformer pageTransformer) {
+    public MianPagerAdapter(Activity context, OnEmojiClickListener onEmojiClickListener, OnEmojiLongClickListener onEmojiLongClickListener, RecentEmoji recentEmoji, VariantEmoji variantManager, int backgroundColor, int iconColor, int dividerColor, OnEmojiBackspaceClickListener onEmojiBackspaceClickListener, OnPageChangeMainViewPager onChangeViewPager, OnStickerListener onStickerListener, OnDownloadStickerListener onDownloadStickerListener, OnOpenPageStickerListener onOpenPageStickerListener, ViewPager.PageTransformer pageTransformer) {
         this.context = context;
         this.clickListener = onEmojiClickListener;
         this.longClickListener = onEmojiLongClickListener;
@@ -53,7 +53,7 @@ public final class MianPagerAdapter extends PagerAdapter {
         this.dividerColor = dividerColor;
         this.onChangeViewPager = onChangeViewPager;
         this.onStickerListener = onStickerListener;
-        this.onUpdateStickerListener = onUpdateStickerListener;
+        this.onDownloadStickerListener = onDownloadStickerListener;
         this.onEmojiBackspaceClickListener = onEmojiBackspaceClickListener;
         this.onOpenPageStickerListener = onOpenPageStickerListener;
         this.pageTransformer = pageTransformer;
@@ -72,7 +72,7 @@ public final class MianPagerAdapter extends PagerAdapter {
         if (position == EMOJI_POSITION) {
             newView = new EmojiView(context, clickListener, longClickListener, recentEmoji, variantEmoji, backgroundColor, iconColor, dividerColor, onEmojiBackspaceClickListener,onChangeViewPager,pageTransformer);
         } else { // STICKER_POSITION
-            stickerEmojiView = new StickerEmojiView(context, backgroundColor, iconColor, dividerColor, onChangeViewPager, onStickerListener,onUpdateStickerListener , onOpenPageStickerListener);
+            stickerEmojiView = new StickerEmojiView(context, backgroundColor, iconColor, dividerColor, onChangeViewPager, onStickerListener, onDownloadStickerListener, onOpenPageStickerListener);
             newView = stickerEmojiView;
         }
 
