@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 
 @SuppressLint("ViewConstructor")
-public final class StickerEmojiView extends LinearLayout implements ViewPager.OnPageChangeListener {
+public final class StickerView extends LinearLayout implements ViewPager.OnPageChangeListener {
 
     private RecyclerView rcvTab;
     private MyRecyclerViewAdapter myRecyclerViewAdapter;
@@ -51,7 +51,7 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
         return stickerDatabase;
     }
 
-    public StickerEmojiView(final Activity context, int backgroundColor, int iconColor, int dividerColor, final OnPageChangeMainViewPager onChangeViewPager, OnStickerListener onStickerListener, OnDownloadStickerListener onDownloadStickerListener, final OnOpenPageStickerListener onOpenPageStickerListener) {
+    public StickerView(final Activity context, int backgroundColor, int iconColor, int dividerColor, final OnPageChangeMainViewPager onChangeViewPager, OnStickerListener onStickerListener, OnDownloadStickerListener onDownloadStickerListener, final OnOpenPageStickerListener onOpenPageStickerListener) {
         super(context);
         View.inflate(context, R.layout.emoji_sticker_view, this);
         this.onChangeViewPager = onChangeViewPager;

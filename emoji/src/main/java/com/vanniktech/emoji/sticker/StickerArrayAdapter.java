@@ -34,12 +34,13 @@ final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
     @Override
     public View getView(final int position, final View convertView, @NonNull final ViewGroup parent) {
         EmojiImageView image = (EmojiImageView) convertView;
-        image.setImageBitmap(null);
         final Context context = getContext();
 
         if (image == null) {
             image = (EmojiImageView) LayoutInflater.from(context).inflate(R.layout.emoji_item, parent, false);
         }
+
+        image.setImageBitmap(null);
         final String s = mSticker.get(position).getUri();
 
         if (new File(s).exists()) {
@@ -68,7 +69,7 @@ final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
             @Override
             public void onClick(View v) {
 
-                StickerDatabase stickerDatabase = StickerEmojiView.getStickerDatabase(context);
+                StickerDatabase stickerDatabase = StickerView.getStickerDatabase(context);
                 stickerDatabase.insertOrUpdateRecentlySticker(mSticker.get(position).getId(), mSticker.get(position).getRefId(), mSticker.get(position).getName(), mSticker.get(position).getToken(), mSticker.get(position).getUri(), mSticker.get(position).getSort(), mSticker.get(position).getGroupId(), System.currentTimeMillis());
                 if (onStickerListener != null)
                     onStickerListener.onItemSticker(mSticker.get(position));

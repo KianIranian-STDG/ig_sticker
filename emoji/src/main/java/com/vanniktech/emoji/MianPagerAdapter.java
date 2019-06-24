@@ -14,7 +14,7 @@ import com.vanniktech.emoji.sticker.OnOpenPageStickerListener;
 import com.vanniktech.emoji.sticker.OnPageChangeMainViewPager;
 import com.vanniktech.emoji.sticker.OnStickerListener;
 import com.vanniktech.emoji.sticker.OnDownloadStickerListener;
-import com.vanniktech.emoji.sticker.StickerEmojiView;
+import com.vanniktech.emoji.sticker.StickerView;
 import com.vanniktech.emoji.sticker.struct.StructGroupSticker;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public final class MianPagerAdapter extends PagerAdapter {
     private OnDownloadStickerListener onDownloadStickerListener;
     private OnOpenPageStickerListener onOpenPageStickerListener;
     private OnEmojiBackspaceClickListener onEmojiBackspaceClickListener;
-    private StickerEmojiView stickerEmojiView;
+    private StickerView stickerView;
     private ViewPager.PageTransformer pageTransformer;
 
     public MianPagerAdapter(Activity context, OnEmojiClickListener onEmojiClickListener, OnEmojiLongClickListener onEmojiLongClickListener, RecentEmoji recentEmoji, VariantEmoji variantManager, int backgroundColor, int iconColor, int dividerColor, OnEmojiBackspaceClickListener onEmojiBackspaceClickListener, OnPageChangeMainViewPager onChangeViewPager, OnStickerListener onStickerListener, OnDownloadStickerListener onDownloadStickerListener, OnOpenPageStickerListener onOpenPageStickerListener, ViewPager.PageTransformer pageTransformer) {
@@ -72,8 +72,8 @@ public final class MianPagerAdapter extends PagerAdapter {
         if (position == EMOJI_POSITION) {
             newView = new EmojiView(context, clickListener, longClickListener, recentEmoji, variantEmoji, backgroundColor, iconColor, dividerColor, onEmojiBackspaceClickListener,onChangeViewPager,pageTransformer);
         } else { // STICKER_POSITION
-            stickerEmojiView = new StickerEmojiView(context, backgroundColor, iconColor, dividerColor, onChangeViewPager, onStickerListener, onDownloadStickerListener, onOpenPageStickerListener);
-            newView = stickerEmojiView;
+            stickerView = new StickerView(context, backgroundColor, iconColor, dividerColor, onChangeViewPager, onStickerListener, onDownloadStickerListener, onOpenPageStickerListener);
+            newView = stickerView;
         }
 
         pager.addView(newView);
@@ -92,20 +92,20 @@ public final class MianPagerAdapter extends PagerAdapter {
 
     public void updateSticker(final ArrayList<StructGroupSticker> structAllStickers){
 
-        if (stickerEmojiView ==null){
+        if (stickerView ==null){
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (stickerEmojiView !=null) stickerEmojiView.updateListStickers(structAllStickers);
+                    if (stickerView !=null) stickerView.updateListStickers(structAllStickers);
                 }
             },2000);
         }else {
-             stickerEmojiView.updateListStickers(structAllStickers);
+             stickerView.updateListStickers(structAllStickers);
         }
     }
 
     public void onUpdateRecentSticker(ArrayList<String> structAllStickers) {
-        stickerEmojiView.onUpdateRecentSticker(structAllStickers);
+        stickerView.onUpdateRecentSticker(structAllStickers);
     }
 
 }
