@@ -35,7 +35,4 @@ final class StickerGridView extends GridView {
         return this;
     }
 
-    public void onUpdateSticker(int updatePosition) {
-        stickerArrayAdapter.onUpdateSticker(updatePosition);
-    }
 }

@@ -78,8 +78,4 @@ final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
         return image;
     }
 
-    public void onUpdateSticker(int updatePosition) {
-        notifyDataSetChanged();
-
-    }
 }

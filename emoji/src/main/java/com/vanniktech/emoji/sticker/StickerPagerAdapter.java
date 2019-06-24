@@ -90,9 +90,4 @@ public final class StickerPagerAdapter extends PagerAdapter {
 
     }
 
-    public void onUpdateSticker(int updatePosition) {
-        stickerGridView.onUpdateSticker(updatePosition);
-    }
-
-
 }

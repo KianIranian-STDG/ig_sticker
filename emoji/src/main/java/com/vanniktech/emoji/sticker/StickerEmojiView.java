@@ -326,10 +326,6 @@ public final class StickerEmojiView extends LinearLayout implements ViewPager.On
             emojisPager.setCurrentItem(0);
     }
 
-    public void onUpdateSticker(int updatePosition) {
-        stickerPagerAdapter.onUpdateSticker(updatePosition);
-    }
-
     public void onUpdateRecentSticker(ArrayList<String> structAllStickers) {
 
         for (String item : structAllStickers) {
