@@ -220,7 +220,6 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
                 return;
             }
 
-            holder.imgSticker.setImageBitmap(null);
             final StructGroupSticker item = mData.get(position);
             if (position == 0) {
                 holder.imgSticker.setImageResource(R.drawable.emoji_recent);
@@ -230,6 +229,8 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
                     holder.imgSticker.setColorFilter(R.color.emoji_background_sticker_tab, PorterDuff.Mode.SRC_IN);
                 }
             } else {
+
+                holder.imgSticker.setImageBitmap(null);
                 if (item.getUri() == null) return;
 
                 keepPositionAdapter = position;
