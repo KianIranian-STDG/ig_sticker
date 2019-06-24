@@ -209,7 +209,6 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
         // binds the data to the TextView in each row
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.imgSticker.setImageBitmap(null);
             if (position >= mData.size()) {
                 holder.imgSticker.setImageResource(R.drawable.emoji_add);
                 holder.itemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
@@ -221,6 +220,7 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
                 return;
             }
 
+            holder.imgSticker.setImageBitmap(null);
             final StructGroupSticker item = mData.get(position);
             if (position == 0) {
                 holder.imgSticker.setImageResource(R.drawable.emoji_recent);
