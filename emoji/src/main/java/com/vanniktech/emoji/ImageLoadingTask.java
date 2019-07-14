@@ -38,7 +38,6 @@ final class ImageLoadingTask extends AsyncTask<Emoji, Void, Drawable> {
       if (imageView != null) {
         Glide.with(context)
                 .load(drawable)
-                .apply(new RequestOptions().override(60, 60))
                 .into(imageView);
       }
     }
