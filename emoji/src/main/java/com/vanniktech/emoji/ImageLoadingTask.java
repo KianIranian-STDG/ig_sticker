@@ -36,9 +36,7 @@ final class ImageLoadingTask extends AsyncTask<Emoji, Void, Drawable> {
       final ImageView imageView = imageViewReference.get();
 
       if (imageView != null) {
-        Glide.with(context)
-                .load(drawable)
-                .into(imageView);
+        imageView.setImageDrawable(drawable);
       }
     }
   }
