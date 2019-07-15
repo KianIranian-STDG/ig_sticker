@@ -2,6 +2,7 @@ package com.vanniktech.emoji;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -36,6 +37,10 @@ final class MainEmojiView extends LinearLayout implements ViewPager.OnPageChange
                   final OnEmojiLongClickListener onEmojiLongClickListener, @NonNull final RecentEmoji recentEmoji,
                   @NonNull final VariantEmoji variantManager, int backgroundColor, int iconColor, OnEmojiBackspaceClickListener onEmojiBackspaceClickListener, int dividerColor, OnStickerListener onStickerListener, OnDownloadStickerListener onDownloadStickerListener, OnOpenPageStickerListener onOpenPageStickerListener, ViewPager.PageTransformer pageTransformer) {
         super(context);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            this.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        }
 
         View.inflate(context, R.layout.emoji_main_view_pager, this);
 
