@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -151,14 +150,6 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
     }
 
     rootView.getViewTreeObserver().addOnGlobalLayoutListener(onGlobalLayoutListener);
-  }
-
-  public void releaseMemory() {
-    if (Build.VERSION.SDK_INT < 16) {
-      rootView.getViewTreeObserver().removeGlobalOnLayoutListener(onGlobalLayoutListener);
-    } else {
-      rootView.getViewTreeObserver().removeOnGlobalLayoutListener(onGlobalLayoutListener);
-    }
   }
 
   void updateKeyboardState() {
