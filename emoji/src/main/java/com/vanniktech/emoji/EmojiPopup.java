@@ -39,6 +39,7 @@ import com.vanniktech.emoji.sticker.struct.StructGroupSticker;
 import java.util.ArrayList;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 import static android.os.Build.VERSION_CODES.O;
 import static com.vanniktech.emoji.Utils.backspace;
 import static com.vanniktech.emoji.Utils.checkNotNull;
@@ -81,6 +82,26 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
   final ViewTreeObserver.OnGlobalLayoutListener onGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
     @Override @SuppressWarnings("PMD.CyclomaticComplexity") public void onGlobalLayout() {
       updateKeyboardState();
+    }
+  };
+
+  final View.OnAttachStateChangeListener onAttachStateChangeListener = new View.OnAttachStateChangeListener() {
+    @Override public void onViewAttachedToWindow(final View v) {
+      // Unused.
+    }
+
+    @Override public void onViewDetachedFromWindow(final View v) {
+      dismiss();
+
+      popupWindow.setOnDismissListener(null);
+
+      if (SDK_INT >= JELLY_BEAN) {
+        rootView.getViewTreeObserver().removeOnGlobalLayoutListener(onGlobalLayoutListener);
+      } else {
+        rootView.getViewTreeObserver().removeGlobalOnLayoutListener(onGlobalLayoutListener);
+      }
+
+      rootView.removeOnAttachStateChangeListener(this);
     }
   };
 
@@ -149,6 +170,7 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
       popupWindow.setAnimationStyle(animationStyle);
     }
 
+    rootView.addOnAttachStateChangeListener(onAttachStateChangeListener);
     rootView.getViewTreeObserver().addOnGlobalLayoutListener(onGlobalLayoutListener);
   }
 
