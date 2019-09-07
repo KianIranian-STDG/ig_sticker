@@ -13,10 +13,10 @@ buildscript {
     'support': [
       'test': [
         'espresso': [
-          'core': "com.android.support.test.espresso:espresso-core:${versions.espresso}",
+          'core': 'androidx.test.espresso:espresso-core:3.1.0',
         ],
-        'runner': "com.android.support.test:runner:${versions.testRules}",
-        'rules': "com.android.support.test:rules:${versions.testRules}",
+        'runner': 'androidx.test:runner:1.1.0',
+        'rules': 'androidx.test:rules:1.1.0',
       ],
     ],
     'fastLaneScreenGrab': "tools.fastlane:screengrab:1.2.0",

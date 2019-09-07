@@ -2,7 +2,7 @@ package com.vanniktech.emoji.sticker;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.widget.GridView;
 
 import com.vanniktech.emoji.R;

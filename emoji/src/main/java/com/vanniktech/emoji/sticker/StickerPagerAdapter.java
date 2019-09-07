@@ -1,7 +1,8 @@
 package com.vanniktech.emoji.sticker;
 
 import android.app.Activity;
-import android.support.v4.view.PagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
+
 import android.view.View;
 import android.view.ViewGroup;
 
