@@ -2,24 +2,26 @@ package com.vanniktech.emoji.sample;
 
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.bundled.BundledEmojiCompatConfig;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
+import android.widget.MultiAutoCompleteTextView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.provider.FontRequest;
+import androidx.emoji.text.EmojiCompat;
+import androidx.emoji.text.FontRequestEmojiCompatConfig;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.vanniktech.emoji.EmojiManager;
-import com.vanniktech.emoji.EmojiMultiAutoCompleteTextView;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.google.GoogleEmojiProvider;
 import com.vanniktech.emoji.googlecompat.GoogleCompatEmojiProvider;
 import com.vanniktech.emoji.ios.IosEmojiProvider;
+import com.vanniktech.emoji.material.MaterialEmojiLayoutFactory;
 import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
 
 // We don't care about duplicated code in the sample.
@@ -29,12 +31,13 @@ import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
   ChatAdapter chatAdapter;
   EmojiPopup emojiPopup;
 
-  EmojiMultiAutoCompleteTextView editText;
+  MultiAutoCompleteTextView editText;
   ViewGroup rootView;
   ImageView emojiButton;
   EmojiCompat emojiCompat;
 
   @Override protected void onCreate(final Bundle savedInstanceState) {
+    getLayoutInflater().setFactory2(new MaterialEmojiLayoutFactory((LayoutInflater.Factory2) getDelegate()));
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.activity_main_multiautocompletetextview);
@@ -75,6 +78,7 @@ import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
   @Override public boolean onOptionsItemSelected(final MenuItem item) {
     switch (item.getItemId()) {
       case R.id.menuMainShowDialog:
+        emojiPopup.dismiss();
         MainDialog.show(this);
         return true;
       case R.id.menuMainVariantIos:
@@ -94,9 +98,9 @@ import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
         return true;
       case R.id.menuMainGoogleCompat:
         if (emojiCompat == null) {
-          final EmojiCompat.Config config = new BundledEmojiCompatConfig(this);
-          config.setReplaceAll(true);
-          emojiCompat = EmojiCompat.init(config);
+          emojiCompat = EmojiCompat.init(new FontRequestEmojiCompatConfig(this,
+              new FontRequest("com.google.android.gms.fonts", "com.google.android.gms", "Noto Color Emoji Compat", R.array.com_google_android_gms_fonts_certs)
+          ).setReplaceAll(true));
         }
         EmojiManager.destroy();
         EmojiManager.install(new GoogleCompatEmojiProvider(emojiCompat));
@@ -113,14 +117,6 @@ import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
     } else {
       super.onBackPressed();
     }
-  }
-
-  @Override protected void onStop() {
-    if (emojiPopup != null) {
-      emojiPopup.dismiss();
-    }
-
-    super.onStop();
   }
 
   private void setUpEmojiPopup() {

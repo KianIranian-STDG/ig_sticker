@@ -2,27 +2,26 @@ package com.vanniktech.emoji;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.WindowInsets;
+import android.view.autofill.AutofillManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.PopupWindow;
 import androidx.annotation.CheckResult;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
 import androidx.viewpager.widget.ViewPager;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.autofill.AutofillManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.PopupWindow;
 import com.vanniktech.emoji.emoji.Emoji;
 import com.vanniktech.emoji.listeners.OnEmojiBackspaceClickListener;
 import com.vanniktech.emoji.listeners.OnEmojiClickListener;
@@ -39,14 +38,12 @@ import com.vanniktech.emoji.sticker.struct.StructGroupSticker;
 import java.util.ArrayList;
 
 import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Build.VERSION_CODES.JELLY_BEAN;
+import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static android.os.Build.VERSION_CODES.O;
 import static com.vanniktech.emoji.Utils.backspace;
 import static com.vanniktech.emoji.Utils.checkNotNull;
 
 public final class EmojiPopup implements EmojiResultReceiver.Receiver {
-  static final String TAG = "EmojiPopup";
-
   static final int MIN_KEYBOARD_HEIGHT = 50;
 
   final View rootView;
@@ -73,6 +70,7 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
   @Nullable
   OnDownloadStickerListener onDownloadStickerListener;
   @Nullable OnOpenPageStickerListener onOpenPageStickerListener;
+  int popupWindowHeight;
 
   int originalImeOptions = -1;
   private MainEmojiView mainEmojiView;
@@ -87,18 +85,16 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
 
   final View.OnAttachStateChangeListener onAttachStateChangeListener = new View.OnAttachStateChangeListener() {
     @Override public void onViewAttachedToWindow(final View v) {
-      // Unused.
+      start();
     }
 
     @Override public void onViewDetachedFromWindow(final View v) {
-      dismiss();
+      stop();
 
       popupWindow.setOnDismissListener(null);
 
-      if (SDK_INT >= JELLY_BEAN) {
-        rootView.getViewTreeObserver().removeOnGlobalLayoutListener(onGlobalLayoutListener);
-      } else {
-        rootView.getViewTreeObserver().removeGlobalOnLayoutListener(onGlobalLayoutListener);
+      if (SDK_INT < LOLLIPOP) {
+          rootView.getViewTreeObserver().removeGlobalOnLayoutListener(onGlobalLayoutListener);
       }
 
       rootView.removeOnAttachStateChangeListener(this);
@@ -171,7 +167,6 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
     }
 
     rootView.addOnAttachStateChangeListener(onAttachStateChangeListener);
-    rootView.getViewTreeObserver().addOnGlobalLayoutListener(onGlobalLayoutListener);
   }
 
   void updateKeyboardState() {
@@ -184,14 +179,56 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
     }
   }
 
-  private void updateKeyboardStateOpened(final int keyboardHeight) {
-    if (popupWindow.getHeight() != keyboardHeight) {
+  void start() {
+    if (SDK_INT >= LOLLIPOP) {
+      context.getWindow().getDecorView().setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+        int previousOffset;
+
+        @Override public WindowInsets onApplyWindowInsets(final View v, final WindowInsets insets) {
+          final int offset;
+
+          if (insets.getSystemWindowInsetBottom() < insets.getStableInsetBottom()) {
+            offset = insets.getSystemWindowInsetBottom();
+          } else {
+            offset = insets.getSystemWindowInsetBottom() - insets.getStableInsetBottom();
+          }
+
+          if (offset != previousOffset || offset == 0) {
+            previousOffset = offset;
+
+            if (offset > Utils.dpToPx(context, MIN_KEYBOARD_HEIGHT)) {
+              updateKeyboardStateOpened(offset);
+            } else {
+              updateKeyboardStateClosed();
+            }
+          }
+
+          return context.getWindow().getDecorView().onApplyWindowInsets(insets);
+        }
+      });
+    } else {
+      rootView.getViewTreeObserver().removeGlobalOnLayoutListener(onGlobalLayoutListener);
+      rootView.getViewTreeObserver().addOnGlobalLayoutListener(onGlobalLayoutListener);
+    }
+  }
+
+  void stop() {
+    dismiss();
+
+    if (SDK_INT >= LOLLIPOP) {
+      context.getWindow().getDecorView().setOnApplyWindowInsetsListener(null);
+    }
+  }
+
+  void updateKeyboardStateOpened(final int keyboardHeight) {
+    if (popupWindowHeight > 0 && popupWindow.getHeight() != popupWindowHeight) {
+      popupWindow.setHeight(popupWindowHeight);
+    } else if (popupWindowHeight == 0 && popupWindow.getHeight() != keyboardHeight) {
       popupWindow.setHeight(keyboardHeight);
     }
 
-    final Rect rect = Utils.windowVisibleDisplayFrame(context);
+    final int properWidth = Utils.getProperWidth(context);
 
-    final int properWidth = Utils.getOrientation(context) == Configuration.ORIENTATION_PORTRAIT ? rect.right : Utils.getScreenWidth(context);
     if (popupWindow.getWidth() != properWidth) {
       popupWindow.setWidth(properWidth);
     }
@@ -208,7 +245,7 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
     }
   }
 
-  private void updateKeyboardStateClosed() {
+  void updateKeyboardStateClosed() {
     isKeyboardOpen = false;
 
     if (onSoftKeyboardCloseListener != null) {
@@ -220,17 +257,35 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
     }
   }
 
+  /**
+   * Set PopUpWindow's height.
+   * If height is greater than 0 then this value will be used later on. If it is 0 then the
+   * keyboard height will be dynamically calculated and set as {@link PopupWindow} height.
+   * @param popupWindowHeight - the height of {@link PopupWindow}
+   */
+  public void setPopupWindowHeight(final int popupWindowHeight) {
+    this.popupWindowHeight = popupWindowHeight >= 0 ? popupWindowHeight : 0;
+  }
+
   public void toggle() {
     if (!popupWindow.isShowing()) {
-      if (Utils.shouldOverrideRegularCondition(context, editText) && originalImeOptions == -1) {
-        originalImeOptions = editText.getImeOptions();
-      }
-      editText.setFocusableInTouchMode(true);
-      editText.requestFocus();
-      showAtBottomPending();
+      // this is needed because something might have cleared the insets listener
+      start();
+      show();
     } else {
       dismiss();
     }
+  }
+
+  public void show() {
+    if (Utils.shouldOverrideRegularCondition(context, editText) && originalImeOptions == -1) {
+      originalImeOptions = editText.getImeOptions();
+    }
+
+    editText.setFocusableInTouchMode(true);
+    editText.requestFocus();
+
+    showAtBottomPending();
   }
 
   private void showAtBottomPending() {
@@ -281,7 +336,8 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
 
   void showAtBottom() {
     isPendingOpen = false;
-    popupWindow.showAtLocation(rootView, Gravity.BOTTOM, 0, 0);
+    popupWindow.showAtLocation(rootView, Gravity.NO_GRAVITY, 0,
+        Utils.getProperHeight(context) + popupWindowHeight);
 
     if (onEmojiPopupShownListener != null) {
       onEmojiPopupShownListener.onEmojiPopupShown();
@@ -312,6 +368,7 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
     @Nullable private OnStickerListener onStickerListener;
     @Nullable private OnDownloadStickerListener onDownloadStickerListener;
     @Nullable private OnOpenPageStickerListener onOpenPageStickerListener;
+    private int popupWindowHeight;
 
     private Builder(final View rootView) {
       this.rootView = checkNotNull(rootView, "The root View can't be null");
@@ -353,6 +410,19 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
 
     @CheckResult public Builder setOnEmojiBackspaceClickListener(@Nullable final OnEmojiBackspaceClickListener listener) {
       onEmojiBackspaceClickListener = listener;
+      return this;
+    }
+
+    /**
+     * Set PopUpWindow's height.
+     * If height is not 0 then this value will be used later on. If it is 0 then the keyboard height will
+     * be dynamically calculated and set as {@link PopupWindow} height.
+     * @param windowHeight - the height of {@link PopupWindow}
+     *
+     * @since 0.7.0
+     */
+    @CheckResult public Builder setPopupWindowHeight(final int windowHeight) {
+      this.popupWindowHeight = windowHeight >= 0 ? windowHeight : 0;
       return this;
     }
 
@@ -433,6 +503,7 @@ public final class EmojiPopup implements EmojiResultReceiver.Receiver {
       emojiPopup.onEmojiPopupShownListener = onEmojiPopupShownListener;
       emojiPopup.onEmojiPopupDismissListener = onEmojiPopupDismissListener;
       emojiPopup.onEmojiBackspaceClickListener = onEmojiBackspaceClickListener;
+      emojiPopup.popupWindowHeight = popupWindowHeight >= 0 ? popupWindowHeight : 0;
       emojiPopup.onStickerListener = onStickerListener;
       emojiPopup.onOpenPageStickerListener = onOpenPageStickerListener;
       return emojiPopup;

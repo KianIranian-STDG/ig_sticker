@@ -21,6 +21,7 @@ buildscript {
         'runner': 'androidx.test:runner:1.1.0',
         'rules': 'androidx.test:rules:1.1.0',
       ],
+      'material': "com.google.android.material:material:1.1.0-beta01",
     ],
     'fastLaneScreenGrab': "tools.fastlane:screengrab:1.2.0",
   ]
@@ -35,8 +36,8 @@ buildscript {
     classpath 'com.vanniktech:gradle-android-junit-jacoco-plugin:0.15.0'
     classpath 'com.vanniktech:gradle-maven-publish-plugin:0.8.0'
 
-    classpath 'com.android.tools.build:gradle:3.5.0'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.24.0'
+    classpath 'com.android.tools.build:gradle:3.5.1'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.26.0'
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
   }
 }
@@ -92,13 +93,12 @@ ext {
   supportCardView = "androidx.cardview:cardview:1.0.0"
   supportAnnotations = "androidx.annotation:annotation:1.0.0"
   supportEmoji = "androidx.emoji:emoji-appcompat:1.0.0"
-  supportEmojiBundled = "androidx.emoji:emoji-bundled:1.0.0"
 
   leakCanaryDebug = "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
 
   testing = [
           junit             : 'junit:junit:4.13-beta-3',
-          robolectric       : 'org.robolectric:robolectric:4.3',
+          robolectric       : 'org.robolectric:robolectric:4.3.1',
           privateConstructor: 'com.pushtorefresh.java-private-constructor-checker:checker:1.2.0',
           assertJ           : 'org.assertj:assertj-core:2.9.1'
   ]
@@ -113,4 +113,11 @@ wrapper {
 
 subprojects {
   task allDependencies(type: DependencyReportTask) {}
+
+  project.plugins.withId("com.android.library") {
+    // TODO replace with https://issuetracker.google.com/issues/72050365 once released.
+    project.android.libraryVariants.all {
+      it.generateBuildConfigProvider.configure { it.enabled = false }
+    }
+  }
 }

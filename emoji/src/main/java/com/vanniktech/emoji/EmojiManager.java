@@ -133,8 +133,8 @@ import static com.vanniktech.emoji.Utils.checkNotNull;
       }
 
       final String regex = patternBuilder.deleteCharAt(patternBuilder.length() - 1).toString();
-      INSTANCE.emojiPattern = Pattern.compile(regex);
-      INSTANCE.emojiRepetitivePattern = Pattern.compile('(' + regex + ")+");
+      INSTANCE.emojiPattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+      INSTANCE.emojiRepetitivePattern = Pattern.compile('(' + regex + ")+", Pattern.CASE_INSENSITIVE);
     }
   }
 
@@ -216,7 +216,7 @@ import static com.vanniktech.emoji.Utils.checkNotNull;
     return emojiMap.get(candidate.toString());
   }
 
-  void verifyInstalled() {
+  public void verifyInstalled() {
     if (categories == null) {
       throw new IllegalStateException("Please install an EmojiProvider through the EmojiManager.install() method first.");
     }

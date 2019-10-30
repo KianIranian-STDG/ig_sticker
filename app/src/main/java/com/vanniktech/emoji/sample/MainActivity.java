@@ -1,25 +1,35 @@
 package com.vanniktech.emoji.sample;
 
+import android.annotation.SuppressLint;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.bundled.BundledEmojiCompatConfig;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.provider.FontRequest;
+import androidx.emoji.text.EmojiCompat;
+import androidx.emoji.text.FontRequestEmojiCompatConfig;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.googlecompat.GoogleCompatEmojiProvider;
 import com.vanniktech.emoji.google.GoogleEmojiProvider;
+import com.vanniktech.emoji.googlecompat.GoogleCompatEmojiProvider;
 import com.vanniktech.emoji.ios.IosEmojiProvider;
+import com.vanniktech.emoji.material.MaterialEmojiLayoutFactory;
 import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
+
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 // We don't care about duplicated code in the sample.
 @SuppressWarnings("CPD-START") public class MainActivity extends AppCompatActivity {
@@ -33,13 +43,16 @@ import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
   ImageView emojiButton;
   EmojiCompat emojiCompat;
 
-  @Override protected void onCreate(final Bundle savedInstanceState) {
+  @Override @SuppressLint("SetTextI18n") protected void onCreate(final Bundle savedInstanceState) {
+    getLayoutInflater().setFactory2(new MaterialEmojiLayoutFactory((LayoutInflater.Factory2) getDelegate()));
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.activity_main);
 
     chatAdapter = new ChatAdapter();
 
+    final Button button = findViewById(R.id.main_activity_material_button);
+    button.setText("\uD83D\uDE18\uD83D\uDE02\uD83E\uDD8C");
     editText = findViewById(R.id.main_activity_chat_bottom_message_edittext);
     rootView = findViewById(R.id.main_activity_root_view);
     emojiButton = findViewById(R.id.main_activity_emoji);
@@ -48,7 +61,21 @@ import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
     emojiButton.setColorFilter(ContextCompat.getColor(this, R.color.emoji_icons), PorterDuff.Mode.SRC_IN);
     sendButton.setColorFilter(ContextCompat.getColor(this, R.color.emoji_icons), PorterDuff.Mode.SRC_IN);
 
+    final CheckBox forceEmojisOnly = findViewById(R.id.main_activity_force_emojis_only);
+    forceEmojisOnly.setText("Force emojis only \uD83D\uDE18");
+    forceEmojisOnly.setOnCheckedChangeListener((ignore, isChecked) -> {
+      if (isChecked) {
+        editText.clearFocus();
+        emojiButton.setVisibility(GONE);
+        editText.disableKeyboardInput(emojiPopup);
+      } else {
+        emojiButton.setVisibility(VISIBLE);
+        editText.enableKeyboardInput();
+      }
+    });
+
     emojiButton.setOnClickListener(ignore -> emojiPopup.toggle());
+
     sendButton.setOnClickListener(ignore -> {
       final String text = editText.getText().toString().trim();
 
@@ -74,6 +101,7 @@ import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
   @Override public boolean onOptionsItemSelected(final MenuItem item) {
     switch (item.getItemId()) {
       case R.id.menuMainShowDialog:
+        emojiPopup.dismiss();
         MainDialog.show(this);
         return true;
       case R.id.menuMainVariantIos:
@@ -93,9 +121,9 @@ import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
         return true;
       case R.id.menuMainGoogleCompat:
         if (emojiCompat == null) {
-          final EmojiCompat.Config config = new BundledEmojiCompatConfig(this);
-          config.setReplaceAll(true);
-          emojiCompat = EmojiCompat.init(config);
+          emojiCompat = EmojiCompat.init(new FontRequestEmojiCompatConfig(this,
+              new FontRequest("com.google.android.gms.fonts", "com.google.android.gms", "Noto Color Emoji Compat", R.array.com_google_android_gms_fonts_certs)
+          ).setReplaceAll(true));
         }
         EmojiManager.destroy();
         EmojiManager.install(new GoogleCompatEmojiProvider(emojiCompat));
@@ -104,14 +132,6 @@ import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
       default:
         return super.onOptionsItemSelected(item);
     }
-  }
-
-  @Override protected void onStop() {
-    if (emojiPopup != null) {
-      emojiPopup.dismiss();
-    }
-
-    super.onStop();
   }
 
   private void setUpEmojiPopup() {
