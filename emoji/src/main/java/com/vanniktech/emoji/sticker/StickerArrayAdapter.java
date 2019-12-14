@@ -1,12 +1,15 @@
 package com.vanniktech.emoji.sticker;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
+import androidx.annotation.NonNull;
+
+import com.airbnb.lottie.LottieListener;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.vanniktech.emoji.EmojiImageView;
@@ -14,8 +17,9 @@ import com.vanniktech.emoji.R;
 import com.vanniktech.emoji.sticker.struct.StructItemSticker;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
-
 
 
 final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
@@ -33,50 +37,95 @@ final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
     @NonNull
     @Override
     public View getView(final int position, final View convertView, @NonNull final ViewGroup parent) {
-        EmojiImageView image = (EmojiImageView) convertView;
+
         final Context context = getContext();
 
-        if (image == null) {
-            image = (EmojiImageView) LayoutInflater.from(context).inflate(R.layout.emoji_item, parent, false);
-        }
+        if (mSticker.get(position).getUri().endsWith(".json")) {
 
-        image.setImageBitmap(null);
-        final String s = mSticker.get(position).getUri();
+            final LottieStickerView lottieAnimationView = (LottieStickerView) LayoutInflater.from(context).inflate(R.layout.emoji_lottie, parent, false);
 
-        if (new File(s).exists()) {
-            Glide.with(context)
-                    .load(new File(s)) // Uri of the picture
-                    .apply(new RequestOptions().override(160, 160))
-                    .into(image);
-
-        } else {
-            final EmojiImageView finalImage = image;
-            onDownloadStickerListener.downloadStickerItem(mSticker.get(position).getToken(), mSticker.get(position).getName() ,mSticker.get(position).getAvatarSize(), new OnStickerItemDownloaded() {
+            lottieAnimationView.setFailureListener(new LottieListener<Throwable>() {
                 @Override
-                public void onStickerItemDownload(String token) {
-                    if (token.equals(mSticker.get(position).getToken())) {
-                        Glide.with(context)
-                                .load(new File(s)) // Uri of the picture
-                                .apply(new RequestOptions().override(160, 160))
-                                .into(finalImage);
-                    }
+                public void onResult(Throwable result) {
+                    Log.e(getClass().getName(), "onResult: ", result);
                 }
             });
-        }
 
-
-        image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                StickerDatabase stickerDatabase = StickerView.getStickerDatabase(context);
-                stickerDatabase.insertOrUpdateRecentlySticker(mSticker.get(position).getId(), mSticker.get(position).getRefId(), mSticker.get(position).getName(), mSticker.get(position).getToken(), mSticker.get(position).getUri(), mSticker.get(position).getSort(), mSticker.get(position).getGroupId(), System.currentTimeMillis());
-                if (onStickerListener != null)
-                    onStickerListener.onItemSticker(mSticker.get(position));
+            File file = new File(mSticker.get(position).getUri());
+            if (file.exists() && file.canRead()) {
+                try {
+                    lottieAnimationView.setAnimation(new FileInputStream(mSticker.get(position).getUri()), mSticker.get(position).getToken());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                onDownloadStickerListener.downloadLottieStickerItem(mSticker.get(position).getToken(), mSticker.get(position).getUri(), mSticker.get(position).getAvatarSize(), new OnLottieStickerItemDownloaded() {
+                    @Override
+                    public void onStickerItemDownload(String token, String path) {
+                        if (token.equals(mSticker.get(position).getToken()) && path.endsWith(".json")) {
+                            try {
+                                lottieAnimationView.setAnimation(new FileInputStream(path), token);
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
             }
-        });
 
-        return image;
+            lottieAnimationView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    StickerDatabase stickerDatabase = StickerView.getStickerDatabase(context);
+                    stickerDatabase.insertOrUpdateRecentlySticker(mSticker.get(position).getId(), mSticker.get(position).getRefId(), mSticker.get(position).getName(), mSticker.get(position).getToken(), mSticker.get(position).getUri(), mSticker.get(position).getSort(), mSticker.get(position).getGroupId(), System.currentTimeMillis());
+                    if (onStickerListener != null)
+                        onStickerListener.onItemSticker(mSticker.get(position));
+                }
+            });
+
+            return lottieAnimationView;
+        } else {
+            EmojiImageView image = (EmojiImageView) LayoutInflater.from(context).inflate(R.layout.emoji_item, parent, false);
+
+            image.setImageBitmap(null);
+            final String s = mSticker.get(position).getUri();
+
+            if (new File(s).exists()) {
+                Glide.with(context)
+                        .load(new File(s)) // Uri of the picture
+                        .apply(new RequestOptions().override(160, 160))
+                        .into(image);
+
+            } else {
+                final EmojiImageView finalImage = image;
+                onDownloadStickerListener.downloadStickerItem(mSticker.get(position).getToken(), mSticker.get(position).getName(), mSticker.get(position).getAvatarSize(), new OnStickerItemDownloaded() {
+                    @Override
+                    public void onStickerItemDownload(String token, String path) {
+                        if (token.equals(mSticker.get(position).getToken())) {
+                            Glide.with(context)
+                                    .load(new File(s)) // Uri of the picture
+                                    .apply(new RequestOptions().override(160, 160))
+                                    .into(finalImage);
+                        }
+                    }
+                });
+            }
+
+
+            image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    StickerDatabase stickerDatabase = StickerView.getStickerDatabase(context);
+                    stickerDatabase.insertOrUpdateRecentlySticker(mSticker.get(position).getId(), mSticker.get(position).getRefId(), mSticker.get(position).getName(), mSticker.get(position).getToken(), mSticker.get(position).getUri(), mSticker.get(position).getSort(), mSticker.get(position).getGroupId(), System.currentTimeMillis());
+                    if (onStickerListener != null)
+                        onStickerListener.onItemSticker(mSticker.get(position));
+                }
+            });
+
+            return image;
+        }
     }
 
 }
