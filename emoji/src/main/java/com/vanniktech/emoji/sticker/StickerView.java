@@ -4,11 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.PorterDuff;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +13,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
+
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieListener;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.vanniktech.emoji.R;
@@ -24,6 +28,8 @@ import com.vanniktech.emoji.sticker.struct.StructGroupSticker;
 import com.vanniktech.emoji.sticker.struct.StructItemSticker;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 
@@ -37,7 +43,6 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
     //    public static OnNotifyList onNotifyList;
     private int stickerTabLastSelectedIndex = -1;
     private static StickerDatabase stickerDatabase;
-    private Context context;
     private OnOpenPageStickerListener myOnOpenPageStickerListener;
     private ArrayList<StructGroupSticker> categoryStickerList;
     private ViewPager emojisPager;
@@ -58,7 +63,6 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
         this.onChangeViewPager = onChangeViewPager;
         setOrientation(VERTICAL);
 
-        this.context = context;
         this.myOnOpenPageStickerListener = onOpenPageStickerListener;
         this.mOnDownloadStickerListener = onDownloadStickerListener;
         this.dividerColor = dividerColor;
@@ -120,7 +124,7 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
         stickerPagerAdapter = new StickerPagerAdapter(context, backgroundColor, iconColor, dividerColor, categoryStickerList, onChangeViewPager, onStickerListener, recentStickerList, onDownloadStickerListener);
 
         final int startIndex = recentStickerList.size() > 0 ? 0 : 1;
-        myRecyclerViewAdapter = new MyRecyclerViewAdapter(context, categoryStickerList, emojisPager, startIndex);
+        myRecyclerViewAdapter = new MyRecyclerViewAdapter(categoryStickerList, emojisPager, startIndex);
 
         myRecyclerViewAdapter.indexItemSelect = 0;
 
@@ -165,7 +169,7 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
     }
 
     private void resetRecentlySticker() {
-        stickerPagerAdapter.invalidateRecentStickers(getStickerDatabase(context).getRecentlySticker());
+        stickerPagerAdapter.invalidateRecentStickers(getStickerDatabase(getContext()).getRecentlySticker());
 
     }
 
@@ -179,113 +183,149 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
         // No-op.
     }
 
-    public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
-
+    public class MyRecyclerViewAdapter extends RecyclerView.Adapter {
         private ArrayList<StructGroupSticker> mData;
-        private LayoutInflater mInflater;
         private ViewPager emojisPager;
         public int indexItemSelect = 0;
-        private Context context;
         private int lastIndexSelect;
 
-//        private ItemClickListener mClickListener;
-
-        // data is passed into the constructor
-        MyRecyclerViewAdapter(Context context, ArrayList<StructGroupSticker> data, ViewPager emojisPager, int startIndex) {
-            this.mInflater = LayoutInflater.from(context);
-            this.context = context;
+        MyRecyclerViewAdapter(ArrayList<StructGroupSticker> data, ViewPager emojisPager, int startIndex) {
             this.mData = data;
             this.emojisPager = emojisPager;
             this.indexItemSelect = startIndex;
-
         }
 
-        // inflates the row layout from xml when needed
+        @NonNull
         @Override
-        public MyRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.emoji_category, parent, false);
-            return new MyRecyclerViewAdapter.ViewHolder(view);
-        }
-
-        // binds the data to the TextView in each row
-        @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
-            if (position >= mData.size()) {
-                holder.imgSticker.setImageResource(R.drawable.emoji_add);
-                holder.itemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-                if (iconColor != 0) {
-                    holder.imgSticker.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN);
-                } else {
-                    holder.imgSticker.setColorFilter(R.color.emoji_background_sticker_tab, PorterDuff.Mode.SRC_IN);
-                }
-                return;
-            }
-
-            final StructGroupSticker item = mData.get(position);
-            if (position == 0) {
-                holder.imgSticker.setImageResource(R.drawable.emoji_recent);
-                if (iconColor != 0) {
-                    holder.imgSticker.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN);
-                } else {
-                    holder.imgSticker.setColorFilter(R.color.emoji_background_sticker_tab, PorterDuff.Mode.SRC_IN);
-                }
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            RecyclerView.ViewHolder holder;
+            if (viewType == StructGroupSticker.ANIMATED_STICKER) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.emoji_lottie_category, parent, false);
+                holder = new LottieViewHolder(view);
             } else {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.emoji_category, parent, false);
+                holder = new NormalViewHolder(view);
+            }
+            return holder;
+        }
 
-                holder.imgSticker.setImageBitmap(null);
-                if (item.getUri() == null) return;
+        @Override
+        public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
+            if (holder instanceof LottieViewHolder) {
+                final LottieViewHolder lottieViewHolder = (LottieViewHolder) holder;
 
-                keepPositionAdapter = position;
+                final StructGroupSticker item = mData.get(position);
 
-                holder.imgSticker.clearColorFilter();
+                final String path = item.getUri();
+                String token = item.getAvatarToken();
 
-                if (new File(item.getUri()).exists()) {
-                    Glide.with(context)
-                            .load(new File(item.getUri())) // Uri of the picture
-                            .apply(new RequestOptions().override(48, 48))
-                            .into(holder.imgSticker);
+                if (new File(path).exists()) {
+                    try {
+                        lottieViewHolder.stickerView.setAnimation(new FileInputStream(path), token);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     if (mOnDownloadStickerListener != null)
                         mOnDownloadStickerListener.downloadStickerAvatar(item.getAvatarToken(), item.getName(), item.getAvatarSize(), new OnStickerAvatarDownloaded() {
                             @Override
                             public void onStickerAvatarDownload(String token) {
                                 if (token.equals(item.getAvatarToken())) {
-                                    Glide.with(context)
-                                            .load(new File(item.getUri())) // Uri of the picture
-                                            .apply(new RequestOptions().override(48, 48))
-                                            .into(holder.imgSticker);
+                                    try {
+                                        lottieViewHolder.stickerView.setAnimation(new FileInputStream(path), token);
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
                         });
                 }
-
-            }
-
-            if (indexItemSelect == position) {
-                holder.itemView.setBackgroundColor(getResources().getColor(R.color.emoji_background_sticker_tab));
-                lastIndexSelect = position;
             } else {
-                holder.itemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+                final NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
+                if (position >= mData.size()) {
+                    normalViewHolder.imgSticker.setImageResource(R.drawable.emoji_add);
+                    normalViewHolder.itemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+                    if (iconColor != 0) {
+                        normalViewHolder.imgSticker.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN);
+                    } else {
+                        normalViewHolder.imgSticker.setColorFilter(R.color.emoji_background_sticker_tab, PorterDuff.Mode.SRC_IN);
+                    }
+                    return;
+                }
+
+                final StructGroupSticker item = mData.get(position);
+                if (position == 0) {
+                    normalViewHolder.imgSticker.setImageResource(R.drawable.emoji_recent);
+                    if (iconColor != 0) {
+                        normalViewHolder.imgSticker.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN);
+                    } else {
+                        normalViewHolder.imgSticker.setColorFilter(R.color.emoji_background_sticker_tab, PorterDuff.Mode.SRC_IN);
+                    }
+                } else {
+
+                    normalViewHolder.imgSticker.setImageBitmap(null);
+                    if (item.getUri() == null) return;
+
+                    keepPositionAdapter = position;
+
+                    normalViewHolder.imgSticker.clearColorFilter();
+
+                    Log.i(getClass().getName(), "onBindViewHolder: " + mData.get(position).getUri() + " name " + mData.get(position).getName() + " pos " + position);
+
+                    if (new File(item.getUri()).exists()) {
+                        Glide.with(holder.itemView.getContext())
+                                .load(item.getUri()) // Uri of the picture
+                                .apply(new RequestOptions().override(48, 48))
+                                .into(normalViewHolder.imgSticker);
+
+                    } else {
+                        if (mOnDownloadStickerListener != null)
+                            mOnDownloadStickerListener.downloadStickerAvatar(item.getAvatarToken(), item.getName(), item.getAvatarSize(), new OnStickerAvatarDownloaded() {
+                                @Override
+                                public void onStickerAvatarDownload(String token) {
+                                    if (token.equals(item.getAvatarToken())) {
+                                        Glide.with(holder.itemView.getContext())
+                                                .load(item.getUri()) // Uri of the picture
+                                                .apply(new RequestOptions().override(48, 48))
+                                                .into(normalViewHolder.imgSticker);
+                                    }
+                                }
+                            });
+                    }
+                }
+
+                if (indexItemSelect == position) {
+                    holder.itemView.setBackgroundColor(getResources().getColor(R.color.emoji_background_sticker_tab));
+                    lastIndexSelect = position;
+                } else {
+                    holder.itemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+                }
             }
         }
 
-        // total number of rows
         @Override
         public int getItemCount() {
             return mData.size() + 1;
         }
 
         public void updateStickerAdapter(ArrayList<StructGroupSticker> categoryStickerList) {
-
             this.mData = categoryStickerList;
             notifyDataSetChanged();
-
         }
 
-        // stores and recycles views as they are scrolled off screen
-        public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        @Override
+        public int getItemViewType(int position) {
+            // TODO: 12/17/19 must drawable icon add with viewHolder
+            if (mData.size() > 1 && position < mData.size() - 2)
+                return mData.get(position).getStickerType();
+            else
+                return StructGroupSticker.NORMAL_STICKER;
+        }
+
+        public class NormalViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
             ImageButton imgSticker;
 
-            ViewHolder(View itemView) {
+            NormalViewHolder(View itemView) {
                 super(itemView);
                 imgSticker = itemView.findViewById(R.id.imgTab);
                 itemView.setOnClickListener(this);
@@ -298,7 +338,41 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
                     if (myOnOpenPageStickerListener != null) {
                         myOnOpenPageStickerListener.addSticker("ADD");
                     } else {
-                        Toast.makeText(context, "something is wrong", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(itemView.getContext(), "something is wrong", Toast.LENGTH_SHORT).show();
+                    }
+                    return;
+                }
+                emojisPager.setCurrentItem(getAdapterPosition());
+                rcvTab.smoothScrollToPosition(getAdapterPosition());
+                indexItemSelect = getAdapterPosition();
+            }
+        }
+
+        public class LottieViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
+            LottieAnimationView stickerView;
+
+            LottieViewHolder(View itemView) {
+                super(itemView);
+                stickerView = itemView.findViewById(R.id.lv_category_image);
+
+                stickerView.setFailureListener(new LottieListener<Throwable>() {
+                    @Override
+                    public void onResult(Throwable result) {
+                        Log.e(getClass().getName(), "onResult: ", result);
+                    }
+                });
+
+                itemView.setOnClickListener(this);
+            }
+
+            @Override
+            public void onClick(View view) {
+
+                if (getAdapterPosition() >= mData.size()) {
+                    if (myOnOpenPageStickerListener != null) {
+                        myOnOpenPageStickerListener.addSticker("ADD");
+                    } else {
+                        Toast.makeText(itemView.getContext(), "something is wrong", Toast.LENGTH_SHORT).show();
                     }
                     return;
                 }
@@ -331,7 +405,7 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
     public void onUpdateRecentSticker(ArrayList<String> structAllStickers) {
 
         for (String item : structAllStickers) {
-            getStickerDatabase(context).removeRecentSticker(item);
+            getStickerDatabase(getContext()).removeRecentSticker(item);
         }
         resetRecentlySticker();
     }

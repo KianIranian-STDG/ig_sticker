@@ -1,7 +1,6 @@
 package com.vanniktech.emoji.sticker.struct;
 
 
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -10,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StructGroupSticker implements Serializable {
+
+    public static final int ANIMATED_STICKER = 0;
+    public static final int NORMAL_STICKER = 1;
 
     @SerializedName("createdAt")
     @Expose
@@ -172,5 +174,12 @@ public class StructGroupSticker implements Serializable {
 
     public void setIsFavorite(boolean isFavorite) {
         this.isFavorite = isFavorite;
+    }
+
+    public int getStickerType() {
+        if (uri != null && uri.endsWith(".json"))
+            return ANIMATED_STICKER;
+        else
+            return NORMAL_STICKER;
     }
 }
