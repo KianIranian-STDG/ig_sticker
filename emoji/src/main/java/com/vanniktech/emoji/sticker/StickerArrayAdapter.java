@@ -59,7 +59,8 @@ final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
                     e.printStackTrace();
                 }
             } else {
-                onDownloadStickerListener.downloadLottieStickerItem(mSticker.get(position).getToken(), mSticker.get(position).getUri(), mSticker.get(position).getAvatarSize(), new OnLottieStickerItemDownloaded() {
+                final StructItemSticker sticker = mSticker.get(position);
+                onDownloadStickerListener.downloadLottieStickerItem(sticker, new OnLottieStickerItemDownloaded() {
                     @Override
                     public void onStickerItemDownload(String token, String path) {
                         if (token.equals(mSticker.get(position).getToken()) && path.endsWith(".json")) {
@@ -89,22 +90,20 @@ final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
             EmojiImageView image = (EmojiImageView) LayoutInflater.from(context).inflate(R.layout.emoji_item, parent, false);
 
             image.setImageBitmap(null);
-            final String s = mSticker.get(position).getUri();
+            String path = mSticker.get(position).getUri();
 
-            if (new File(s).exists()) {
-                Glide.with(context)
-                        .load(new File(s)) // Uri of the picture
+            if (new File(path).exists()) {
+                Glide.with(context).load(path)
                         .apply(new RequestOptions().override(160, 160))
                         .into(image);
-
             } else {
                 final EmojiImageView finalImage = image;
-                onDownloadStickerListener.downloadStickerItem(mSticker.get(position).getToken(), mSticker.get(position).getName(), mSticker.get(position).getAvatarSize(), new OnStickerItemDownloaded() {
+                final StructItemSticker sticker = mSticker.get(position);
+                onDownloadStickerListener.downloadStickerItem(sticker, new OnStickerItemDownloaded() {
                     @Override
                     public void onStickerItemDownload(String token, String path) {
-                        if (token.equals(mSticker.get(position).getToken())) {
-                            Glide.with(context)
-                                    .load(new File(s)) // Uri of the picture
+                        if (token.equals(sticker.getToken())) {
+                            Glide.with(context).load(path)
                                     .apply(new RequestOptions().override(160, 160))
                                     .into(finalImage);
                         }

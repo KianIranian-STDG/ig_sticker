@@ -46,8 +46,8 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
     private OnOpenPageStickerListener myOnOpenPageStickerListener;
     private ArrayList<StructGroupSticker> categoryStickerList;
     private ViewPager emojisPager;
-    public static OnDownloadStickerListener mOnDownloadStickerListener;
-    private ArrayList<StructItemSticker> recentStickerList = new ArrayList<>();
+    private OnDownloadStickerListener mOnDownloadStickerListener;
+    private ArrayList<StructItemSticker> recentStickerList;
     private int dividerColor;
     private int iconColor;
     private static int keepPositionAdapter = 0;
@@ -153,9 +153,9 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
 
             if (i > myRecyclerViewAdapter.lastIndexSelect && i < (categoryStickerList.size() - 2)) {
                 rcvTab.smoothScrollToPosition(i + 2);
-            } else if (i > 0 && i < myRecyclerViewAdapter.lastIndexSelect){
+            } else if (i > 0 && i < myRecyclerViewAdapter.lastIndexSelect) {
                 rcvTab.smoothScrollToPosition(i - 1);
-            }else {
+            } else {
                 rcvTab.smoothScrollToPosition(i);
             }
             stickerTabLastSelectedIndex = i;
@@ -186,7 +186,7 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
     public class MyRecyclerViewAdapter extends RecyclerView.Adapter {
         private ArrayList<StructGroupSticker> mData;
         private ViewPager emojisPager;
-        public int indexItemSelect = 0;
+        private int indexItemSelect;
         private int lastIndexSelect;
 
         MyRecyclerViewAdapter(ArrayList<StructGroupSticker> data, ViewPager emojisPager, int startIndex) {
@@ -212,34 +212,8 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
         @Override
         public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
             if (holder instanceof LottieViewHolder) {
-                final LottieViewHolder lottieViewHolder = (LottieViewHolder) holder;
-
-                final StructGroupSticker item = mData.get(position);
-
-                final String path = item.getUri();
-                String token = item.getAvatarToken();
-
-                if (new File(path).exists()) {
-                    try {
-                        lottieViewHolder.stickerView.setAnimation(new FileInputStream(path), token);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    if (mOnDownloadStickerListener != null)
-                        mOnDownloadStickerListener.downloadStickerAvatar(item.getAvatarToken(), item.getName(), item.getAvatarSize(), new OnStickerAvatarDownloaded() {
-                            @Override
-                            public void onStickerAvatarDownload(String token) {
-                                if (token.equals(item.getAvatarToken())) {
-                                    try {
-                                        lottieViewHolder.stickerView.setAnimation(new FileInputStream(path), token);
-                                    } catch (FileNotFoundException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        });
-                }
+                LottieViewHolder lottieViewHolder = (LottieViewHolder) holder;
+                lottieViewHolder.bindView(mData.get(position));
             } else {
                 final NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
                 if (position >= mData.size()) {
@@ -253,7 +227,6 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
                     return;
                 }
 
-                final StructGroupSticker item = mData.get(position);
                 if (position == 0) {
                     normalViewHolder.imgSticker.setImageResource(R.drawable.emoji_recent);
                     if (iconColor != 0) {
@@ -264,34 +237,12 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
                 } else {
 
                     normalViewHolder.imgSticker.setImageBitmap(null);
-                    if (item.getUri() == null) return;
 
                     keepPositionAdapter = position;
 
                     normalViewHolder.imgSticker.clearColorFilter();
 
-                    Log.i(getClass().getName(), "onBindViewHolder: " + mData.get(position).getUri() + " name " + mData.get(position).getName() + " pos " + position);
-
-                    if (new File(item.getUri()).exists()) {
-                        Glide.with(holder.itemView.getContext())
-                                .load(item.getUri()) // Uri of the picture
-                                .apply(new RequestOptions().override(48, 48))
-                                .into(normalViewHolder.imgSticker);
-
-                    } else {
-                        if (mOnDownloadStickerListener != null)
-                            mOnDownloadStickerListener.downloadStickerAvatar(item.getAvatarToken(), item.getName(), item.getAvatarSize(), new OnStickerAvatarDownloaded() {
-                                @Override
-                                public void onStickerAvatarDownload(String token) {
-                                    if (token.equals(item.getAvatarToken())) {
-                                        Glide.with(holder.itemView.getContext())
-                                                .load(item.getUri()) // Uri of the picture
-                                                .apply(new RequestOptions().override(48, 48))
-                                                .into(normalViewHolder.imgSticker);
-                                    }
-                                }
-                            });
-                    }
+                    normalViewHolder.bindView(mData.get(position));
                 }
 
                 if (indexItemSelect == position) {
@@ -316,7 +267,7 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
         @Override
         public int getItemViewType(int position) {
             // TODO: 12/17/19 must drawable icon add with viewHolder
-            if (mData.size() > 1 && position < mData.size() - 2)
+            if (mData.size() > 1 && position < mData.size())
                 return mData.get(position).getStickerType();
             else
                 return StructGroupSticker.NORMAL_STICKER;
@@ -345,6 +296,27 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
                 emojisPager.setCurrentItem(getAdapterPosition());
                 rcvTab.smoothScrollToPosition(getAdapterPosition());
                 indexItemSelect = getAdapterPosition();
+            }
+
+            public void bindView(final StructGroupSticker sticker) {
+                if (new File(sticker.getUri()).exists()) {
+                    Glide.with(itemView.getContext())
+                            .load(sticker.getUri()).apply(new RequestOptions().override(48, 48))
+                            .into(imgSticker);
+                } else {
+                    final String stickerToken = sticker.getAvatarToken();
+                    if (mOnDownloadStickerListener != null)
+                        mOnDownloadStickerListener.downloadStickerAvatar(sticker, new OnStickerAvatarDownloaded() {
+                            @Override
+                            public void onStickerAvatarDownload(String token, String path) {
+                                if (token.equals(stickerToken)) {
+                                    Glide.with(itemView.getContext()).load(path)
+                                            .apply(new RequestOptions().override(48, 48))
+                                            .into(imgSticker);
+                                }
+                            }
+                        });
+                }
             }
         }
 
@@ -379,6 +351,33 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
                 emojisPager.setCurrentItem(getAdapterPosition());
                 rcvTab.smoothScrollToPosition(getAdapterPosition());
                 indexItemSelect = getAdapterPosition();
+            }
+
+            private void bindView(final StructGroupSticker sticker) {
+                String path = sticker.getUri();
+                String token = sticker.getAvatarToken();
+
+                if (new File(path).exists()) {
+                    try {
+                        stickerView.setAnimation(new FileInputStream(path), token);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    if (mOnDownloadStickerListener != null)
+                        mOnDownloadStickerListener.downloadStickerAvatar(sticker, new OnStickerAvatarDownloaded() {
+                            @Override
+                            public void onStickerAvatarDownload(String token, String path) {
+                                if (token.equals(sticker.getAvatarToken())) {
+                                    try {
+                                        stickerView.setAnimation(new FileInputStream(path), token);
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        });
+                }
             }
         }
     }

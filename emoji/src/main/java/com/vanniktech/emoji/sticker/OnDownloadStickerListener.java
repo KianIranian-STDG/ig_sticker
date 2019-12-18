@@ -1,9 +1,12 @@
 package com.vanniktech.emoji.sticker;
 
+import com.vanniktech.emoji.sticker.struct.StructGroupSticker;
+import com.vanniktech.emoji.sticker.struct.StructItemSticker;
+
 public interface OnDownloadStickerListener {
-    void downloadStickerItem(String token, String extention, long avatarSize, OnStickerItemDownloaded onStickerItemDownloaded);
+    void downloadStickerItem(StructItemSticker sticker, OnStickerItemDownloaded onStickerItemDownloaded);
 
-    void downloadLottieStickerItem(String token, String extention, long avatarSize, OnLottieStickerItemDownloaded lottieStickerItemDownloaded);
+    void downloadLottieStickerItem(StructItemSticker sticker, OnLottieStickerItemDownloaded lottieStickerItemDownloaded);
 
-    void downloadStickerAvatar(String token, String extention, long avatarSize, OnStickerAvatarDownloaded onStickerAvatarDownloaded);
+    void downloadStickerAvatar(StructGroupSticker sticker, OnStickerAvatarDownloaded onStickerAvatarDownloaded);
 }
