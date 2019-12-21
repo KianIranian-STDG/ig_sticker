@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.airbnb.lottie.LottieListener;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.vanniktech.emoji.EmojiImageView;
 import com.vanniktech.emoji.R;
@@ -76,6 +77,7 @@ final class RecentlyStickerAdapter extends ArrayAdapter<StructItemSticker> {
             Glide.with(context)
                     .load(new File(s)) // Uri of the picture
                     .apply(new RequestOptions().override(160, 160))
+                    .transition(DrawableTransitionOptions.withCrossFade(200))
                     .into(image);
 
             image.setOnClickListener(new View.OnClickListener() {

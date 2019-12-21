@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.airbnb.lottie.LottieListener;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.vanniktech.emoji.EmojiImageView;
 import com.vanniktech.emoji.R;
@@ -95,6 +96,7 @@ final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
             if (new File(path).exists()) {
                 Glide.with(context).load(path)
                         .apply(new RequestOptions().override(160, 160))
+                        .transition(DrawableTransitionOptions.withCrossFade(200))
                         .into(image);
             } else {
                 final EmojiImageView finalImage = image;
@@ -105,6 +107,7 @@ final class StickerArrayAdapter extends ArrayAdapter<StructItemSticker> {
                         if (token.equals(sticker.getToken())) {
                             Glide.with(context).load(path)
                                     .apply(new RequestOptions().override(160, 160))
+                                    .transition(DrawableTransitionOptions.withCrossFade(200))
                                     .into(finalImage);
                         }
                     }

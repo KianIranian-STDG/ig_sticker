@@ -22,6 +22,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieListener;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.vanniktech.emoji.R;
 import com.vanniktech.emoji.sticker.struct.StructGroupSticker;
@@ -302,6 +303,7 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
                 if (new File(sticker.getUri()).exists()) {
                     Glide.with(itemView.getContext())
                             .load(sticker.getUri()).apply(new RequestOptions().override(48, 48))
+                            .transition(DrawableTransitionOptions.withCrossFade(200))
                             .into(imgSticker);
                 } else {
                     final String stickerToken = sticker.getAvatarToken();
@@ -311,6 +313,7 @@ public final class StickerView extends LinearLayout implements ViewPager.OnPageC
                             public void onStickerAvatarDownload(String token, String path) {
                                 if (token.equals(stickerToken)) {
                                     Glide.with(itemView.getContext()).load(path)
+                                            .transition(DrawableTransitionOptions.withCrossFade(200))
                                             .apply(new RequestOptions().override(48, 48))
                                             .into(imgSticker);
                                 }
