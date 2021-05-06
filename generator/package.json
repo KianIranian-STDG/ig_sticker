@@ -20,6 +20,6 @@
     "imagemin-zopfli": "^5.1.0",
     "jimp": "^0.5.0",
     "stable": "^0.1.6",
-    "underscore": "^1.8.3"
+    "underscore": "^1.12.1"
   }
 }
